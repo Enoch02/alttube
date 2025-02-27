@@ -18,35 +18,35 @@ private const val TAG = "VideoFeed"
 
 @HiltViewModel
 class VideoFeedViewModel @Inject constructor(private val supabase: SupabaseClient) : ViewModel() {
-    var contentState: ContentState by mutableStateOf(ContentState.Loading)
+    var feedContentState: FeedContentState by mutableStateOf(FeedContentState.Loading)
 
     fun loadPublicVideoURLs(bucketName: String = "videos") {
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                contentState = ContentState.Loading
+                feedContentState = FeedContentState.Loading
                 val bucket = supabase.storage.from(bucketName)
                 val files = bucket.list()
 
                 Log.e(TAG, "loadPublicVideoURLs: ${files.size}")
 
-                contentState = ContentState.Loaded(
+                feedContentState = FeedContentState.Loaded(
                     files.map { file ->
                         supabase.storage.from(bucketName).publicUrl(file.name)
                     }
                 )
             } catch (e: HttpRequestException) {
                 Log.e(TAG, "loadPublicVideoURLs: ${e.message}")
-                contentState = ContentState.Error("Check Your Internet Connection")
+                feedContentState = FeedContentState.Error("Check Your Internet Connection")
             } catch (e: Exception) {
                 Log.e(TAG, "loadPublicVideoURLs: ${e.message}")
-                contentState = ContentState.Error(e.message.toString())
+                feedContentState = FeedContentState.Error(e.message.toString())
             }
         }
     }
 }
 
-sealed class ContentState {
-    data object Loading : ContentState()
-    data class Loaded(val videos: List<String>) : ContentState()
-    data class Error(val message: String) : ContentState()
+sealed class FeedContentState {
+    data object Loading : FeedContentState()
+    data class Loaded(val videos: List<String>) : FeedContentState()
+    data class Error(val message: String) : FeedContentState()
 }

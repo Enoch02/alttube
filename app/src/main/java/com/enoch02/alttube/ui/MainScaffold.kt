@@ -22,6 +22,7 @@ import com.enoch02.alttube.navigation.MainDestination
 import com.enoch02.alttube.navigation.MainDestinationInfo
 import com.enoch02.alttube.ui.screen.favorites.FavoritesScreen
 import com.enoch02.alttube.ui.screen.profile.ProfileScreen
+import com.enoch02.alttube.ui.screen.upload.UploadScreen
 import com.enoch02.alttube.ui.screen.video_feed.VideoFeedScreen
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -58,7 +59,7 @@ fun MainScaffold(navController: NavHostController) {
                 }
 
                 MainDestination.UPLOAD -> {
-
+                    UploadScreen(modifier = Modifier.padding(innerPadding))
                 }
 
                 MainDestination.FAVORITE -> {

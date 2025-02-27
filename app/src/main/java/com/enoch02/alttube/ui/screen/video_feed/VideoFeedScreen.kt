@@ -27,8 +27,8 @@ fun VideoFeedScreen(
         viewModel.loadPublicVideoURLs()
     }
 
-    when (val state = viewModel.contentState) {
-        is ContentState.Loading -> {
+    when (val state = viewModel.feedContentState) {
+        is FeedContentState.Loading -> {
             Box(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center,
@@ -38,7 +38,7 @@ fun VideoFeedScreen(
             )
         }
 
-        is ContentState.Loaded -> {
+        is FeedContentState.Loaded -> {
             if (state.videos.isEmpty()) {
                 Column(
                     modifier = Modifier.fillMaxSize(),
@@ -64,7 +64,7 @@ fun VideoFeedScreen(
             )
         }
 
-        is ContentState.Error -> {
+        is FeedContentState.Error -> {
             Column(
                 modifier = Modifier.fillMaxSize(),
                 verticalArrangement = Arrangement.Center,
