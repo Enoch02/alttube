@@ -6,6 +6,7 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     id("kotlin-kapt")
     id("com.google.dagger.hilt.android")
+    kotlin("plugin.serialization")
 }
 
 val localProperties = rootProject.file("local.properties")
@@ -35,6 +36,11 @@ android {
             "String",
             "SUPABASE_KEY",
             "\"${properties["SUPABASE_KEY"]}\""
+        )
+        buildConfigField(
+            "String",
+            "JWT_SECRET",
+            "${properties["JWT_SECRET"]}"
         )
     }
 
@@ -95,12 +101,15 @@ dependencies {
     implementation(libs.androidx.media3.ui)
 
     implementation(libs.coil.compose)
+    implementation("io.coil-kt.coil3:coil-video:3.1.0")
 
     implementation(platform("io.github.jan-tennert.supabase:bom:3.1.1"))
     implementation("io.github.jan-tennert.supabase:storage-kt")
     implementation("io.ktor:ktor-client-android:3.1.1")
-    /*implementation ("io.ktor:ktor-utils:1.3.2-1.4.0-rc")
-    implementation ("io.ktor:ktor-client-okhttp:1.3.2-1.4.0-rc")*/
+    implementation("io.github.jan-tennert.supabase:auth-kt")
+    implementation("io.github.jan-tennert.supabase:postgrest-kt")
+
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.8.0")
 }
 
 kapt {

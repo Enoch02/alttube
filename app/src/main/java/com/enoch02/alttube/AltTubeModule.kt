@@ -7,7 +7,10 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import io.github.jan.supabase.SupabaseClient
+import io.github.jan.supabase.auth.Auth
 import io.github.jan.supabase.createSupabaseClient
+import io.github.jan.supabase.postgrest.Postgrest
+import io.github.jan.supabase.storage.Storage
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -21,7 +24,9 @@ class AltTubeModule {
             supabaseUrl = BuildConfig.SUPABASE_URL,
             supabaseKey = BuildConfig.SUPABASE_KEY
         ) {
-            install(io.github.jan.supabase.storage.Storage)
+            install(Storage)
+            install(Auth)
+            install(Postgrest)
         }
 
         return supabase

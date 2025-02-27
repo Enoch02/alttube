@@ -36,7 +36,8 @@ fun MainScaffold(navController: NavHostController) {
             MainDestination.FAVORITE to MainDestinationInfo("Favorite", R.drawable.favorite),
             MainDestination.PROFILE to MainDestinationInfo("Profile", R.drawable.profile)
         )
-    var selectedDestination by rememberSaveable { mutableStateOf(MainDestination.FEED) }
+//    var selectedDestination by rememberSaveable { mutableStateOf(MainDestination.FEED) }
+    var selectedDestination by rememberSaveable { mutableStateOf(MainDestination.PROFILE) }
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),

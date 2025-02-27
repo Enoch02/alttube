@@ -8,7 +8,6 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.OptIn
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -23,7 +22,6 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -39,10 +37,15 @@ import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.DefaultRenderersFactory
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.ui.PlayerView
+import com.enoch02.alttube.ui.MainViewModel
 
 @OptIn(UnstableApi::class)
 @Composable
-fun UploadScreen(modifier: Modifier = Modifier, viewModel: UploadViewModel = hiltViewModel()) {
+fun UploadScreen(
+    modifier: Modifier = Modifier,
+    uploadViewModel: UploadViewModel = hiltViewModel(),
+    mainViewModel: MainViewModel = hiltViewModel(),
+) {
     val context = LocalContext.current
     var selectedVideo by remember { mutableStateOf<Uri?>(null) }
     val launcher = rememberLauncherForActivityResult(
@@ -52,6 +55,8 @@ fun UploadScreen(modifier: Modifier = Modifier, viewModel: UploadViewModel = hil
     }
 
     LaunchedEffect(Unit) {
+        mainViewModel.getUserInfo()
+
         if (selectedVideo == null) {
             launcher.launch(
                 PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.VideoOnly)
@@ -76,23 +81,23 @@ fun UploadScreen(modifier: Modifier = Modifier, viewModel: UploadViewModel = hil
                             prepare()
                         }
 
-                AnimatedVisibility(viewModel.isUploading) {
+                AnimatedVisibility(uploadViewModel.isUploading) {
                     LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
                 }
 
-                if (viewModel.showErrorDialog) {
+                if (uploadViewModel.showErrorDialog) {
                     AlertDialog(
                         onDismissRequest = {
-                            viewModel.dismissErrorDialog()
+                            uploadViewModel.dismissErrorDialog()
                         },
                         title = { Text("Error") },
                         text = { Text("The video could not be uploaded.\nWould you like to retry?") },
                         confirmButton = {
                             TextButton(
                                 onClick = {
-                                    viewModel.dismissErrorDialog()
+                                    uploadViewModel.dismissErrorDialog()
 
-                                    viewModel.uploadVideo(
+                                    uploadViewModel.uploadVideo(
                                         context = context,
                                         uri = selectedVideo!!,
                                         onUploadComplete = {
@@ -111,7 +116,7 @@ fun UploadScreen(modifier: Modifier = Modifier, viewModel: UploadViewModel = hil
                         },
                         dismissButton = {
                             TextButton(
-                                onClick = { viewModel.dismissErrorDialog() },
+                                onClick = { uploadViewModel.dismissErrorDialog() },
                                 content = { Text("Cancel", color = Color.White) }
                             )
                         }
@@ -149,17 +154,30 @@ fun UploadScreen(modifier: Modifier = Modifier, viewModel: UploadViewModel = hil
                                 Text("Select Another")
                             },
                             modifier = Modifier.width(150.dp),
-                            enabled = !viewModel.isUploading
+                            enabled = !uploadViewModel.isUploading
                         )
 
                         Button(
                             onClick = {
-                                viewModel.uploadVideo(
+                                uploadViewModel.uploadVideo(
                                     context = context,
                                     uri = selectedVideo!!,
-                                    onUploadComplete = {
+                                    onUploadComplete = { publicUrl ->
                                         player.release()
                                         selectedVideo = null
+
+                                        mainViewModel.userInfo?.let { userInfo ->
+                                            val updatedList =
+                                                userInfo.uploads?.toMutableList() ?: mutableListOf()
+                                            updatedList.add(publicUrl)
+
+                                            mainViewModel.updateUserInfo(
+                                                userInfo.copy(
+                                                    uploads = updatedList
+                                                )
+                                            )
+                                        }
+
                                         Toast.makeText(
                                             context,
                                             "Upload Complete",
@@ -172,7 +190,7 @@ fun UploadScreen(modifier: Modifier = Modifier, viewModel: UploadViewModel = hil
                                 Text("Upload")
                             },
                             modifier = Modifier.width(150.dp),
-                            enabled = !viewModel.isUploading
+                            enabled = !uploadViewModel.isUploading
                         )
                     }
                 )

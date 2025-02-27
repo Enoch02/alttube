@@ -11,9 +11,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.github.jan.supabase.SupabaseClient
+import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.storage.storage
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -35,23 +37,23 @@ class UploadViewModel @Inject constructor(private val supabase: SupabaseClient) 
         context: Context,
         uri: Uri,
         bucketName: String = "videos",
-        onUploadComplete: () -> Unit,
+        onUploadComplete: (publicUrl: String) -> Unit,
     ) {
         viewModelScope.launch(Dispatchers.IO) {
             isUploading = true
 
             getFileFromUri(context, uri)
-                .onSuccess {
+                .onSuccess { file ->
                     try {
                         val storage = supabase.storage
                         val bucket = storage[bucketName]
 
                         bucket.upload(
-                            path = it.name,
-                            data = it.readBytes(),
+                            path = file.name,
+                            data = file.readBytes(),
                         )
 
-                        onUploadComplete()
+                        withContext(Dispatchers.Main) { onUploadComplete(bucket.publicUrl(file.name)) }
                         isUploading = false
                     } catch (e: Exception) {
                         isUploading = false
@@ -61,6 +63,7 @@ class UploadViewModel @Inject constructor(private val supabase: SupabaseClient) 
                 }
         }
     }
+
 
     private fun getFileFromUri(context: Context, uri: Uri): Result<File> {
         val contentResolver = context.contentResolver
