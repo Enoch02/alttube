@@ -1,10 +1,16 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     id("kotlin-kapt")
     id("com.google.dagger.hilt.android")
-    id("com.google.gms.google-services")
+}
+
+val localProperties = rootProject.file("local.properties")
+val properties = Properties().apply {
+    load(localProperties.inputStream())
 }
 
 android {
@@ -19,6 +25,17 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        buildConfigField(
+            "String",
+            "SUPABASE_URL",
+            "\"${properties["SUPABASE_URL"]}\""
+        )
+        buildConfigField(
+            "String",
+            "SUPABASE_KEY",
+            "\"${properties["SUPABASE_KEY"]}\""
+        )
     }
 
     buildTypes {
@@ -39,6 +56,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 }
 
@@ -71,10 +89,13 @@ dependencies {
     implementation(libs.androidx.media3.exoplayer)
     implementation(libs.androidx.media3.ui)
 
-    implementation(platform(libs.firebase.bom))
-    implementation(libs.firebase.auth)
-
     implementation(libs.coil.compose)
+
+    implementation(platform("io.github.jan-tennert.supabase:bom:3.1.1"))
+    implementation("io.github.jan-tennert.supabase:storage-kt")
+    implementation("io.ktor:ktor-client-android:3.1.1")
+    /*implementation ("io.ktor:ktor-utils:1.3.2-1.4.0-rc")
+    implementation ("io.ktor:ktor-client-okhttp:1.3.2-1.4.0-rc")*/
 }
 
 kapt {

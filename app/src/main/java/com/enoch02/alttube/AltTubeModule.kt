@@ -1,14 +1,13 @@
 package com.enoch02.alttube
 
 import android.content.Context
-import com.google.firebase.Firebase
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.auth
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import io.github.jan.supabase.SupabaseClient
+import io.github.jan.supabase.createSupabaseClient
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -17,5 +16,14 @@ class AltTubeModule {
     fun providesApplicationContext(@ApplicationContext context: Context) = context
 
     @Provides
-    fun provideFirebaseAuthInstance() = FirebaseAuth.getInstance()
+    fun provideSupabaseClient(): SupabaseClient {
+        val supabase: SupabaseClient = createSupabaseClient(
+            supabaseUrl = BuildConfig.SUPABASE_URL,
+            supabaseKey = BuildConfig.SUPABASE_KEY
+        ) {
+            install(io.github.jan.supabase.storage.Storage)
+        }
+
+        return supabase
+    }
 }

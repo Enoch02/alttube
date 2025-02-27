@@ -16,11 +16,11 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
-import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import com.enoch02.alttube.R
 import com.enoch02.alttube.navigation.MainDestination
 import com.enoch02.alttube.navigation.MainDestinationInfo
+import com.enoch02.alttube.ui.screen.favorites.FavoritesScreen
 import com.enoch02.alttube.ui.screen.profile.ProfileScreen
 import com.enoch02.alttube.ui.screen.video_feed.VideoFeedScreen
 
@@ -62,7 +62,7 @@ fun MainScaffold(navController: NavHostController) {
                 }
 
                 MainDestination.FAVORITE -> {
-
+                    FavoritesScreen(modifier = Modifier.padding(innerPadding))
                 }
 
                 MainDestination.PROFILE -> {

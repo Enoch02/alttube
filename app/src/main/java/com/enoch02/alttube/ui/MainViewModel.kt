@@ -1,15 +1,34 @@
 package com.enoch02.alttube.ui
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
+import android.util.Log
 import androidx.lifecycle.ViewModel
-import com.google.firebase.auth.FirebaseAuth
+import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import io.github.jan.supabase.SupabaseClient
+import io.github.jan.supabase.storage.storage
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import java.io.File
 import javax.inject.Inject
 
+private const val TAG = "MainViewModel"
+
 @HiltViewModel
-class MainViewModel @Inject constructor(authInstance: FirebaseAuth) : ViewModel() {
-    private val currentUser = authInstance.currentUser
-    var userID by mutableStateOf(currentUser?.uid)
+class MainViewModel @Inject constructor(private val supabase: SupabaseClient) : ViewModel() {
+    fun uploadVideo(file: File, bucketName: String, fileName: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val storage = supabase.storage
+                val bucket = storage[bucketName]
+
+                bucket.upload(
+                    path = fileName,
+                    data = file.readBytes()
+                )
+            } catch (e: Exception) {
+                e.printStackTrace()
+                Log.e(TAG, "uploadVideo: Failed to upload video: ${e.message}")
+            }
+        }
+    }
 }
