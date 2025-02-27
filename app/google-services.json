@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "942715197278",
+    "project_id": "alttube-25bef",
+    "storage_bucket": "alttube-25bef.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:942715197278:android:dea86b23645481b9eee1cf",
+        "android_client_info": {
+          "package_name": "com.enoch02.alttube"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCXDBDGqbMQN34ZASwHa2tdVwSFrtMm-qI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

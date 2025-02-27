@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     id("kotlin-kapt")
     id("com.google.dagger.hilt.android")
+    id("com.google.gms.google-services")
 }
 
 android {
@@ -27,11 +28,6 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
-        }
-
-        debug {
-            applicationIdSuffix = ".debug"
-            resValue("string", "app_name", "AltTube Debug")
         }
     }
     compileOptions {
@@ -65,7 +61,7 @@ dependencies {
     debugImplementation(libs.androidx.ui.test.manifest)
 
     implementation(libs.hilt.android)
-    implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
+    implementation(libs.androidx.hilt.navigation.compose)
     kapt(libs.hilt.android.compiler)
 
     implementation(libs.androidx.lifecycle.viewmodel.compose)
@@ -74,6 +70,11 @@ dependencies {
 
     implementation(libs.androidx.media3.exoplayer)
     implementation(libs.androidx.media3.ui)
+
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.auth)
+
+    implementation(libs.coil.compose)
 }
 
 kapt {
