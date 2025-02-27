@@ -15,7 +15,7 @@ private const val TAG = "MainViewModel"
 
 @HiltViewModel
 class MainViewModel @Inject constructor(private val supabase: SupabaseClient) : ViewModel() {
-    fun uploadVideo(file: File, bucketName: String, fileName: String) {
+    fun uploadVideo(file: File, bucketName: String = "videos", fileName: String) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 val storage = supabase.storage
