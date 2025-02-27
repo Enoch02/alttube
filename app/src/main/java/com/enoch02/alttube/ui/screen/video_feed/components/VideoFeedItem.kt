@@ -24,9 +24,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.VolumeMute
+import androidx.compose.material.icons.automirrored.filled.VolumeOff
+import androidx.compose.material.icons.automirrored.filled.VolumeUp
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PersonPin
 import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.VolumeUp
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -61,6 +65,7 @@ import androidx.media3.exoplayer.source.ProgressiveMediaSource
 import androidx.media3.ui.PlayerView
 import com.enoch02.alttube.R
 import kotlinx.coroutines.delay
+import kotlin.math.exp
 
 @OptIn(UnstableApi::class)
 @Composable
@@ -125,6 +130,7 @@ fun VideoFeedItem(
 
     // prevent animations from getting stuck when tapping repeatedly
     var clickCount by remember { mutableIntStateOf(0) }
+    var isMuted by remember { mutableStateOf(false) }
 
     Box(modifier = modifier) {
         AndroidView(
@@ -307,6 +313,23 @@ fun VideoFeedItem(
                 verticalArrangement = Arrangement.SpaceBetween,
                 horizontalAlignment = Alignment.End,
                 content = {
+                    IconButton(
+                        onClick = {
+                            isMuted = !isMuted
+                            exoPlayer.volume = if (isMuted) 0f else 1f
+                        },
+                        content = {
+                            val icon =
+                                if (isMuted) Icons.AutoMirrored.Filled.VolumeUp else Icons.AutoMirrored.Filled.VolumeOff
+
+                            Icon(
+                                imageVector = icon,
+                                contentDescription = "Mute",
+                                tint = Color.White
+                            )
+                        }
+                    )
+
                     IconButton(
                         onClick = { },
                         content = {
