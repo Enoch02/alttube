@@ -13,3 +13,5 @@
 .externalNativeBuild
 .cxx
 local.properties
+/.idea/.name
+/.idea/inspectionProfiles/Project_Default.xml
