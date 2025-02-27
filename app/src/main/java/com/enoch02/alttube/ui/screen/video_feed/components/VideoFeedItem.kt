@@ -4,12 +4,19 @@ import android.net.Uri
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.widget.FrameLayout
 import androidx.annotation.OptIn
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -17,20 +24,25 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PersonPin
+import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
@@ -48,6 +60,7 @@ import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.exoplayer.source.ProgressiveMediaSource
 import androidx.media3.ui.PlayerView
 import com.enoch02.alttube.R
+import kotlinx.coroutines.delay
 
 @OptIn(UnstableApi::class)
 @Composable
@@ -106,6 +119,13 @@ fun VideoFeedItem(
         }
     }
 
+    var showSeekBackIndicator by remember { mutableStateOf(false) }
+    var showPauseIndicator by remember { mutableStateOf(false) }
+    var showSeekForwardIndicator by remember { mutableStateOf(false) }
+
+    // prevent animations from getting stuck when tapping repeatedly
+    var clickCount by remember { mutableIntStateOf(0) }
+
     Box(modifier = modifier) {
         AndroidView(
             modifier = modifier
@@ -120,6 +140,122 @@ fun VideoFeedItem(
                 }
             }
         )
+
+        Row(
+            modifier = Modifier
+                .fillMaxSize()
+        ) {
+            // Left tap area
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxHeight()
+                    .pointerInput(Unit) {
+                        detectTapGestures(
+                            onTap = { },
+                            onDoubleTap = {
+                                clickCount++
+                                showSeekBackIndicator = true
+                                exoPlayer.seekTo(exoPlayer.currentPosition - 5000)
+                            }
+                        )
+                    },
+                contentAlignment = Alignment.Center,
+                content = {
+                    androidx.compose.animation.AnimatedVisibility(
+                        visible = showSeekBackIndicator,
+                        enter = fadeIn(tween(150)) + scaleIn(tween(300)),
+                        exit = fadeOut(tween(150)) + scaleOut(tween(300))
+                    ) {
+                        Icon(
+                            painter = painterResource(R.drawable.seek_back),
+                            contentDescription = null
+                        )
+
+                        LaunchedEffect(clickCount) {
+                            delay(500)
+                            showSeekBackIndicator = false
+                        }
+                    }
+                }
+            )
+
+            // Center tap area
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxHeight()
+                    .pointerInput(Unit) {
+                        detectTapGestures(
+                            onTap = {
+                                clickCount++
+                                showPauseIndicator = true
+                                exoPlayer.playWhenReady = !exoPlayer.playWhenReady
+                            },
+                            onDoubleTap = {
+                                //TODO: add like functionality here
+                            }
+                        )
+                    },
+                contentAlignment = Alignment.Center,
+                content = {
+                    androidx.compose.animation.AnimatedVisibility(
+                        visible = showPauseIndicator,
+                        enter = fadeIn(tween(150)) + scaleIn(tween(300)),
+                        exit = fadeOut(tween(150)) + scaleOut(tween(300))
+                    ) {
+                        val icon =
+                            if (exoPlayer.isPlaying) Icons.Default.PlayArrow else Icons.Default.Pause
+
+                        Icon(
+                            imageVector = icon,
+                            contentDescription = null,
+                            modifier = Modifier.size(48.dp)
+                        )
+
+                        LaunchedEffect(clickCount) {
+                            delay(500)
+                            showPauseIndicator = false
+                        }
+                    }
+                }
+            )
+
+            // Right tap area
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxHeight()
+                    .pointerInput(Unit) {
+                        detectTapGestures(
+                            onTap = { },
+                            onDoubleTap = {
+                                clickCount++
+                                showSeekForwardIndicator = true
+                                exoPlayer.seekTo(exoPlayer.currentPosition + 5000)
+                            }
+                        )
+                    },
+                contentAlignment = Alignment.Center,
+                content = {
+                    androidx.compose.animation.AnimatedVisibility(
+                        visible = showSeekForwardIndicator,
+                        enter = fadeIn(tween(150)) + scaleIn(tween(300)),
+                        exit = fadeOut(tween(150)) + scaleOut(tween(300))
+                    ) {
+                        Icon(
+                            painter = painterResource(R.drawable.seek_forward),
+                            contentDescription = null
+                        )
+
+                        LaunchedEffect(clickCount) {
+                            delay(500)
+                            showSeekForwardIndicator = false
+                        }
+                    }
+                }
+            )
+        }
 
         Row(
             modifier = Modifier
