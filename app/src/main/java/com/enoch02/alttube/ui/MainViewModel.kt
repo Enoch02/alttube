@@ -169,18 +169,19 @@ class MainViewModel @Inject constructor(private val supabase: SupabaseClient) : 
         }
     }
 
-    fun updateUserInfo(userInfo: UserInfo) {
+    fun updateUserInfo(theUserInfo: UserInfo) {
         viewModelScope.launch(Dispatchers.IO) {
             val userId = getCurrentUserId()
             if (userId != null) {
                 try {
                     supabase.from("users")
-                        .update(userInfo) {
+                        .update(theUserInfo) {
                             filter {
                                 eq("supabase_user_id", userId)
                             }
                         }
-                        .decodeList<UserInfo>()
+
+                    userInfo = theUserInfo
                 } catch (e: Exception) {
                     Log.e(TAG, "Failed to update user info: ${e.message}")
                 }
@@ -189,7 +190,6 @@ class MainViewModel @Inject constructor(private val supabase: SupabaseClient) : 
             }
         }
     }
-
 }
 
 @Serializable

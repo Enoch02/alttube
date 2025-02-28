@@ -105,7 +105,7 @@ fun ProfileScreen(modifier: Modifier = Modifier, viewModel: MainViewModel = hilt
                 1 -> {
                     if (viewModel.userInfo?.favorites != null) {
                         VideoList(
-                            videoUrls = viewModel.userInfo!!.uploads!!,
+                            videoUrls = viewModel.userInfo!!.favorites!!,
                             modifier = Modifier.fillMaxSize()
                         )
                     }
@@ -114,7 +114,7 @@ fun ProfileScreen(modifier: Modifier = Modifier, viewModel: MainViewModel = hilt
                 2 -> {
                     if (viewModel.userInfo?.liked != null) {
                         VideoList(
-                            videoUrls = viewModel.userInfo!!.uploads!!,
+                            videoUrls = viewModel.userInfo!!.liked!!,
                             modifier = Modifier.fillMaxSize()
                         )
                     }

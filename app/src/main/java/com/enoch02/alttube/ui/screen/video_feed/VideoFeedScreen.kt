@@ -19,19 +19,23 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
+import com.enoch02.alttube.ui.MainViewModel
 import com.enoch02.alttube.ui.screen.video_feed.components.VideoFeedItem
 
 @Composable
 fun VideoFeedScreen(
     modifier: Modifier,
     navController: NavHostController,
-    viewModel: VideoFeedViewModel = hiltViewModel(),
+    videoFeedViewModel: VideoFeedViewModel = hiltViewModel(),
+    mainViewModel: MainViewModel = hiltViewModel(),
 ) {
+    val userInfo = mainViewModel.userInfo
     LaunchedEffect(Unit) {
-        viewModel.loadPublicVideoURLs()
+        videoFeedViewModel.loadPublicVideoURLs()
+        mainViewModel.getUserInfo()
     }
 
-    when (val state = viewModel.feedContentState) {
+    when (val state = videoFeedViewModel.feedContentState) {
         is FeedContentState.Loading -> {
             Box(
                 modifier = Modifier.fillMaxSize(),
@@ -66,12 +70,45 @@ fun VideoFeedScreen(
                     }
 
                     Box(modifier = Modifier.fillMaxSize()) {
+                        val video = state.videos[pageIndex]
+
                         if (pageVisibility) {
                             VideoFeedItem(
-                                videoURL = state.videos[pageIndex],
+                                videoURL = video,
                                 modifier = Modifier.fillMaxSize(),
+                                isFavorite = userInfo?.favorites?.contains(video)
+                                    ?: false,
                                 onFavoriteAction = {
-                                    /*TODO*/
+                                    val updatedFavorites =
+                                        userInfo?.favorites?.toMutableList() ?: mutableListOf()
+
+                                    if (updatedFavorites.contains(video)) {
+                                        updatedFavorites.remove(video)
+                                    } else {
+                                        updatedFavorites.add(video)
+                                    }
+
+                                    userInfo?.let {
+                                        mainViewModel.updateUserInfo(
+                                            it.copy(favorites = updatedFavorites)
+                                        )
+                                    }
+                                },
+                                onLikeAction = {
+                                    val updatedLikes =
+                                        userInfo?.liked?.toMutableList() ?: mutableListOf()
+
+                                    if (updatedLikes.contains(video)) {
+                                        updatedLikes.remove(video)
+                                    } else {
+                                        updatedLikes.add(video)
+                                    }
+
+                                    userInfo?.let {
+                                        mainViewModel.updateUserInfo(
+                                            it.copy(favorites = updatedLikes)
+                                        )
+                                    }
                                 }
                             )
                         }
@@ -92,7 +129,7 @@ fun VideoFeedScreen(
                     Text(text = state.message)
 
                     Button(
-                        onClick = { viewModel.loadPublicVideoURLs() },
+                        onClick = { videoFeedViewModel.loadPublicVideoURLs() },
                         content = { Text(text = "Retry") }
                     )
                 }
