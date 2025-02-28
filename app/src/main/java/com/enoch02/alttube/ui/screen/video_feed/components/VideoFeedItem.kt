@@ -1,5 +1,6 @@
 package com.enoch02.alttube.ui.screen.video_feed.components
 
+import android.content.Intent
 import android.net.Uri
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.widget.FrameLayout
@@ -45,6 +46,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
@@ -72,6 +74,7 @@ import kotlin.math.exp
 fun VideoFeedItem(
     modifier: Modifier = Modifier,
     videoURL: String,
+    onFavoriteAction: () -> Unit,
 ) {
     var errorMessage by remember { mutableStateOf<String?>(null) }
     val context = LocalContext.current
@@ -353,20 +356,28 @@ fun VideoFeedItem(
                         }
                     )
 
-                    IconButton(
-                        onClick = { },
-                        content = {
-                            Icon(
-                                painter = painterResource(id = R.drawable.downvote),
-                                contentDescription = "Dislike",
-                                tint = Color.White
-                            )
-                        }
-                    )
+                    /* IconButton(
+                         onClick = { },
+                         content = {
+                             Icon(
+                                 painter = painterResource(id = R.drawable.downvote),
+                                 contentDescription = "Dislike",
+                                 tint = Color.White
+                             )
+                         }
+                     )*/
 
 
                     IconButton(
-                        onClick = { },
+                        onClick = {
+                            val intent = Intent(Intent.ACTION_SEND).apply {
+                                type = "text/plain"
+                                putExtra(Intent.EXTRA_TEXT, videoURL)
+                            }
+
+                            val shareIntent = Intent.createChooser(intent, "Share")
+                            context.startActivity(shareIntent)
+                        },
                         content = {
                             Icon(
                                 painter = painterResource(id = R.drawable.share),
@@ -376,7 +387,7 @@ fun VideoFeedItem(
                         }
                     )
 
-                    IconButton(
+                    /*IconButton(
                         onClick = { },
                         content = {
                             Icon(
@@ -385,7 +396,7 @@ fun VideoFeedItem(
                                 tint = Color.White
                             )
                         }
-                    )
+                    )*/
                 }
             )
         }

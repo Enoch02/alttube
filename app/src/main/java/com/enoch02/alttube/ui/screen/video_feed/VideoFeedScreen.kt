@@ -69,7 +69,10 @@ fun VideoFeedScreen(
                         if (pageVisibility) {
                             VideoFeedItem(
                                 videoURL = state.videos[pageIndex],
-                                modifier = Modifier.fillMaxSize()
+                                modifier = Modifier.fillMaxSize(),
+                                onFavoriteAction = {
+                                    /*TODO*/
+                                }
                             )
                         }
                     }

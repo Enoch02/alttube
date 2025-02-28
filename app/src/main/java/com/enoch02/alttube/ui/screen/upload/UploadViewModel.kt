@@ -51,13 +51,20 @@ class UploadViewModel @Inject constructor(private val supabase: SupabaseClient) 
                     try {
                         val storage = supabase.storage
                         val bucket = storage[bucketName]
+                        val newFileName = "${Uuid.random()}.${file.extension}"
 
                         bucket.upload(
-                            path = "${Uuid.random()}.${file.extension}",
+                            path = newFileName,
                             data = file.readBytes(),
                         )
 
-                        withContext(Dispatchers.Main) { onUploadComplete(bucket.publicUrl(file.name)) }
+                        withContext(Dispatchers.Main) {
+                            onUploadComplete(
+                                bucket.publicUrl(
+                                    newFileName
+                                )
+                            )
+                        }
                         isUploading = false
                     } catch (e: Exception) {
                         isUploading = false

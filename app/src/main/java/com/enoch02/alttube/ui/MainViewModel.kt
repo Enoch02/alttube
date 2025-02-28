@@ -68,7 +68,6 @@ class MainViewModel @Inject constructor(private val supabase: SupabaseClient) : 
     }
      */
 
-    //TODO: strip comments
     fun signIn(context: Context) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
@@ -93,7 +92,6 @@ class MainViewModel @Inject constructor(private val supabase: SupabaseClient) : 
                             "Session refresh failed: ${e.message}. Signing in anonymously."
                         )
 
-                        // Refresh failed — sign in anonymously again
                         signInAnonymouslyAndSaveTokens(prefs)
                     }
                 } else {

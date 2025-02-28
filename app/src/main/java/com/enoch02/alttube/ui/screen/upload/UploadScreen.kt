@@ -107,9 +107,22 @@ fun UploadScreen(
                                     uploadViewModel.uploadVideo(
                                         context = context,
                                         uri = selectedVideo!!,
-                                        onUploadComplete = {
+                                        onUploadComplete = { publicUrl ->
                                             player.release()
                                             selectedVideo = null
+
+                                            mainViewModel.userInfo?.let { userInfo ->
+                                                val updatedList =
+                                                    userInfo.uploads?.toMutableList() ?: mutableListOf()
+                                                updatedList.add(publicUrl)
+
+                                                mainViewModel.updateUserInfo(
+                                                    userInfo.copy(
+                                                        uploads = updatedList
+                                                    )
+                                                )
+                                            }
+
                                             Toast.makeText(
                                                 context,
                                                 "Upload Complete",

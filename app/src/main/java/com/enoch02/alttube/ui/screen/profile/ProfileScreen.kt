@@ -1,5 +1,6 @@
 package com.enoch02.alttube.ui.screen.profile
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -63,10 +64,8 @@ fun ProfileScreen(modifier: Modifier = Modifier, viewModel: MainViewModel = hilt
             .fillMaxSize()
             .padding(horizontal = 16.dp),
         content = {
-            /*Text(text = "${viewModel.userInfo?.uploads}")*/
-
             ProfileHeader(
-                userID = "anonymous",
+                userID = "${viewModel.userInfo?.supabase_user_id}",
                 modifier = Modifier.fillMaxWidth()
             )
 
@@ -89,10 +88,10 @@ fun ProfileScreen(modifier: Modifier = Modifier, viewModel: MainViewModel = hilt
                         )
                     }
                 },
-                contentColor = Color.White
+                contentColor = Color.White,
+                containerColor = MaterialTheme.colorScheme.background
             )
 
-            //TODO
             when (selectedTab) {
                 0 -> {
                     if (viewModel.userInfo?.uploads != null) {
@@ -132,7 +131,7 @@ fun VideoList(modifier: Modifier = Modifier, videoUrls: List<String>) {
     LazyVerticalGrid(
         modifier = modifier,
         columns = GridCells.Fixed(2),
-        contentPadding = PaddingValues(16.dp),
+        contentPadding = PaddingValues(12.dp),
         horizontalArrangement = Arrangement.spacedBy(12.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
         content = {
@@ -155,19 +154,21 @@ fun VideoThumbnail(videoUrl: String, modifier: Modifier = Modifier) {
     val context = LocalContext.current
     var bitmap by remember { mutableStateOf<android.graphics.Bitmap?>(null) }
 
-    // Load the thumbnail asynchronously
     LaunchedEffect(videoUrl) {
-        bitmap = withContext(Dispatchers.IO) {
-            Glide.with(context)
-                .asBitmap()
-                .load(videoUrl)
-                .apply(RequestOptions().frame(5000000))
-                .submit()
-                .get()
+        try {
+            bitmap = withContext(Dispatchers.IO) {
+                Glide.with(context)
+                    .asBitmap()
+                    .load(videoUrl)
+                    .apply(RequestOptions().frame(5000000))
+                    .submit()
+                    .get()
+            }
+        } catch (e: Exception) {
+            Log.e("VideoThumbnailComposable", "${e.message}")
         }
     }
 
-    // Show the image if loaded, otherwise show a placeholder
     bitmap?.let {
         Image(
             bitmap = it.asImageBitmap(),
