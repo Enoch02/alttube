@@ -25,13 +25,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.VolumeMute
 import androidx.compose.material.icons.automirrored.filled.VolumeOff
 import androidx.compose.material.icons.automirrored.filled.VolumeUp
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PersonPin
 import androidx.compose.material.icons.filled.PlayArrow
-import androidx.compose.material.icons.filled.VolumeUp
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -46,7 +44,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
@@ -67,14 +64,15 @@ import androidx.media3.exoplayer.source.ProgressiveMediaSource
 import androidx.media3.ui.PlayerView
 import com.enoch02.alttube.R
 import kotlinx.coroutines.delay
-import kotlin.math.exp
 
 @OptIn(UnstableApi::class)
 @Composable
 fun VideoFeedItem(
     modifier: Modifier = Modifier,
     videoURL: String,
+    isFavorite: Boolean,
     onFavoriteAction: () -> Unit,
+    onLikeAction: () -> Unit,
 ) {
     var errorMessage by remember { mutableStateOf<String?>(null) }
     val context = LocalContext.current
@@ -202,7 +200,7 @@ fun VideoFeedItem(
                                 exoPlayer.playWhenReady = !exoPlayer.playWhenReady
                             },
                             onDoubleTap = {
-                                //TODO: add like functionality here
+                                onFavoriteAction()
                             }
                         )
                     },
@@ -288,7 +286,7 @@ fun VideoFeedItem(
 
                         Spacer(modifier = Modifier.width(4.dp))
 
-                        Text(text = "Username", color = Color.White)
+                        Text(text = "Anonymous", color = Color.White)
 
                         Spacer(modifier = Modifier.width(8.dp))
 
@@ -306,7 +304,7 @@ fun VideoFeedItem(
                         )
                     }
 
-                    Text("This is a description of something interesting...", color = Color.White)
+                    Text("Yet another video", color = Color.White)
                 }
             )
 
@@ -334,10 +332,16 @@ fun VideoFeedItem(
                     )
 
                     IconButton(
-                        onClick = { },
+                        onClick = onFavoriteAction,
                         content = {
+                            val icon = if (isFavorite) {
+                                painterResource(R.drawable.favorite_fill)
+                            } else {
+                                painterResource(id = R.drawable.favorite)
+                            }
+
                             Icon(
-                                painter = painterResource(id = R.drawable.favorite),
+                                painter = icon,
                                 contentDescription = "Favorite",
                                 tint = Color.White
                             )
@@ -346,7 +350,7 @@ fun VideoFeedItem(
 
 
                     IconButton(
-                        onClick = { },
+                        onClick = onLikeAction,
                         content = {
                             Icon(
                                 painter = painterResource(id = R.drawable.upvote),
