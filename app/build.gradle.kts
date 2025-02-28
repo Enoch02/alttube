@@ -37,11 +37,11 @@ android {
             "SUPABASE_KEY",
             "\"${properties["SUPABASE_KEY"]}\""
         )
-        buildConfigField(
+        /*buildConfigField(
             "String",
             "JWT_SECRET",
             "${properties["JWT_SECRET"]}"
-        )
+        )*/
     }
 
     buildTypes {

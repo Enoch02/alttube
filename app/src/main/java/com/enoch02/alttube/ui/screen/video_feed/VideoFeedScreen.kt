@@ -11,6 +11,10 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -55,10 +59,20 @@ fun VideoFeedScreen(
             VerticalPager(
                 state = feedPagerState,
                 pageContent = { pageIndex ->
-                    VideoFeedItem(
-                        videoURL = state.videos[pageIndex],
-                        modifier = Modifier.fillMaxSize()
-                    )
+                    var pageVisibility by remember { mutableStateOf(false) }
+
+                    LaunchedEffect(pageIndex, feedPagerState.currentPage) {
+                        pageVisibility = (pageIndex == feedPagerState.currentPage)
+                    }
+
+                    Box(modifier = Modifier.fillMaxSize()) {
+                        if (pageVisibility) {
+                            VideoFeedItem(
+                                videoURL = state.videos[pageIndex],
+                                modifier = Modifier.fillMaxSize()
+                            )
+                        }
+                    }
                 },
                 modifier = modifier.fillMaxSize()
             )
