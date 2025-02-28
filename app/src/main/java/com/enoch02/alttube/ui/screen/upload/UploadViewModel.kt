@@ -12,6 +12,7 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.auth.auth
+import io.github.jan.supabase.exceptions.UnknownRestException
 import io.github.jan.supabase.storage.storage
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -20,6 +21,8 @@ import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
 import javax.inject.Inject
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
 private const val TAG = "Upload"
 
@@ -33,6 +36,7 @@ class UploadViewModel @Inject constructor(private val supabase: SupabaseClient) 
         showErrorDialog = false
     }
 
+    @OptIn(ExperimentalUuidApi::class)
     fun uploadVideo(
         context: Context,
         uri: Uri,
@@ -49,7 +53,7 @@ class UploadViewModel @Inject constructor(private val supabase: SupabaseClient) 
                         val bucket = storage[bucketName]
 
                         bucket.upload(
-                            path = file.name,
+                            path = "${Uuid.random()}.${file.extension}",
                             data = file.readBytes(),
                         )
 

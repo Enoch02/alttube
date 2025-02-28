@@ -1,6 +1,7 @@
 package com.enoch02.alttube.ui
 
 import android.content.Context
+import android.content.SharedPreferences
 import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -26,6 +27,7 @@ class MainViewModel @Inject constructor(private val supabase: SupabaseClient) : 
         return supabase.auth.currentUserOrNull()?.id
     }
 
+    /*
     fun signIn(context: Context) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
@@ -62,6 +64,67 @@ class MainViewModel @Inject constructor(private val supabase: SupabaseClient) : 
                 // Handle any errors
                 Log.e("Auth", "Error during sign in: ${e.message}")
             }
+        }
+    }
+     */
+
+    //TODO: strip comments
+    fun signIn(context: Context) {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val prefs = context.getSharedPreferences("auth", Context.MODE_PRIVATE)
+                val storedUserId = prefs.getString("user_id", null)
+                val storedRefreshToken = prefs.getString("refresh_token", null)
+
+                if (storedUserId != null && storedRefreshToken != null) {
+                    try {
+                        // Try to refresh the session with the refresh token
+                        val newSession = supabase.auth.refreshSession(storedRefreshToken)
+
+                        // Save new access and refresh tokens
+                        prefs.edit()
+                            .putString("user_id", newSession.user?.id)
+                            .putString("access_token", newSession.accessToken)
+                            .putString("refresh_token", newSession.refreshToken)
+                            .apply()
+                    } catch (e: Exception) {
+                        Log.e(
+                            "Auth",
+                            "Session refresh failed: ${e.message}. Signing in anonymously."
+                        )
+
+                        // Refresh failed — sign in anonymously again
+                        signInAnonymouslyAndSaveTokens(prefs)
+                    }
+                } else {
+                    // No stored tokens — sign in anonymously
+                    signInAnonymouslyAndSaveTokens(prefs)
+                }
+
+                // Save user info after signing in or refreshing
+                getCurrentUserId()?.let {
+                    saveUserInfo(userInfo = UserInfo(supabase_user_id = it))
+                }
+            } catch (e: Exception) {
+                Log.e("Auth", "Error during sign in: ${e.message}")
+            }
+        }
+    }
+
+    private suspend fun signInAnonymouslyAndSaveTokens(prefs: SharedPreferences) {
+        try {
+            supabase.auth.signInAnonymously()
+            val newUserId = supabase.auth.currentUserOrNull()?.id
+            val newSession = supabase.auth.currentSessionOrNull()
+
+            // Save new session details
+            prefs.edit()
+                .putString("user_id", newUserId)
+                .putString("access_token", newSession?.accessToken)
+                .putString("refresh_token", newSession?.refreshToken)
+                .apply()
+        } catch (e: Exception) {
+            Log.e("Auth", "Anonymous sign-in failed: ${e.message}")
         }
     }
 

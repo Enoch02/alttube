@@ -100,8 +100,7 @@ dependencies {
     implementation(libs.androidx.media3.exoplayer)
     implementation(libs.androidx.media3.ui)
 
-    implementation(libs.coil.compose)
-    implementation("io.coil-kt.coil3:coil-video:3.1.0")
+    implementation("com.github.bumptech.glide:glide:4.12.0")
 
     implementation(platform("io.github.jan-tennert.supabase:bom:3.1.1"))
     implementation("io.github.jan-tennert.supabase:storage-kt")
