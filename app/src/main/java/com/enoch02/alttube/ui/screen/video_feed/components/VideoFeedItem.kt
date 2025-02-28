@@ -71,6 +71,7 @@ fun VideoFeedItem(
     modifier: Modifier = Modifier,
     videoURL: String,
     isFavorite: Boolean,
+    isLiked: Boolean,
     onFavoriteAction: () -> Unit,
     onLikeAction: () -> Unit,
 ) {
@@ -352,8 +353,14 @@ fun VideoFeedItem(
                     IconButton(
                         onClick = onLikeAction,
                         content = {
+                            val icon = if (isLiked) {
+                                painterResource(id = R.drawable.upvote_filled)
+                            } else {
+                                painterResource(id = R.drawable.upvote)
+                            }
+
                             Icon(
-                                painter = painterResource(id = R.drawable.upvote),
+                                painter = icon,
                                 contentDescription = "Like",
                                 tint = Color.White
                             )

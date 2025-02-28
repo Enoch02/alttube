@@ -78,6 +78,8 @@ fun VideoFeedScreen(
                                 modifier = Modifier.fillMaxSize(),
                                 isFavorite = userInfo?.favorites?.contains(video)
                                     ?: false,
+                                isLiked = userInfo?.liked?.contains(video)
+                                    ?: false,
                                 onFavoriteAction = {
                                     val updatedFavorites =
                                         userInfo?.favorites?.toMutableList() ?: mutableListOf()
@@ -106,7 +108,7 @@ fun VideoFeedScreen(
 
                                     userInfo?.let {
                                         mainViewModel.updateUserInfo(
-                                            it.copy(favorites = updatedLikes)
+                                            it.copy(liked = updatedLikes)
                                         )
                                     }
                                 }
