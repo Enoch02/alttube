@@ -137,8 +137,7 @@ fun VideoFeedItem(
     Box(modifier = modifier) {
         AndroidView(
             modifier = modifier
-                .fillMaxSize()
-            /*.aspectRatio(16 / 9f)*/,
+                .fillMaxSize(),
             factory = { ctx ->
                 PlayerView(ctx).apply {
                     player = exoPlayer
@@ -367,18 +366,6 @@ fun VideoFeedItem(
                         }
                     )
 
-                    /* IconButton(
-                         onClick = { },
-                         content = {
-                             Icon(
-                                 painter = painterResource(id = R.drawable.downvote),
-                                 contentDescription = "Dislike",
-                                 tint = Color.White
-                             )
-                         }
-                     )*/
-
-
                     IconButton(
                         onClick = {
                             val intent = Intent(Intent.ACTION_SEND).apply {
@@ -397,17 +384,6 @@ fun VideoFeedItem(
                             )
                         }
                     )
-
-                    /*IconButton(
-                        onClick = { },
-                        content = {
-                            Icon(
-                                painter = painterResource(id = R.drawable.comment),
-                                contentDescription = "Comment",
-                                tint = Color.White
-                            )
-                        }
-                    )*/
                 }
             )
         }

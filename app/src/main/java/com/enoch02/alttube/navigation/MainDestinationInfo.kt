@@ -7,7 +7,6 @@ data class MainDestinationInfo(
 
 enum class MainDestination {
     FEED,
-    /*SEARCH,*/
     UPLOAD,
     FAVORITE,
     PROFILE
