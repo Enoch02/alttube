@@ -30,47 +30,6 @@ class MainViewModel @Inject constructor(private val supabase: SupabaseClient) : 
         return supabase.auth.currentUserOrNull()?.id
     }
 
-    /*
-    fun signIn(context: Context) {
-        viewModelScope.launch(Dispatchers.IO) {
-            try {
-                val prefs = context.getSharedPreferences("auth", Context.MODE_PRIVATE)
-                val storedUserId = prefs.getString("user_id", null)
-                val storedRefreshToken = prefs.getString("refresh_token", null)
-
-                if (storedUserId != null && storedRefreshToken != null) {
-                    try {
-                        supabase.auth.refreshSession(storedRefreshToken)
-                    } catch (e: Exception) {
-                        supabase.auth.signInAnonymously()
-                        val newUserId = supabase.auth.currentUserOrNull()?.id
-                        val newSession = supabase.auth.currentSessionOrNull()
-                        prefs.edit()
-                            .putString("user_id", newUserId)
-                            .putString("refresh_token", newSession?.refreshToken)
-                            .apply()
-                    }
-                } else {
-                    supabase.auth.signInAnonymously()
-                    val newUserId = supabase.auth.currentUserOrNull()?.id
-                    val newSession = supabase.auth.currentSessionOrNull()
-                    prefs.edit()
-                        .putString("user_id", newUserId)
-                        .putString("refresh_token", newSession?.refreshToken)
-                        .apply()
-                }
-
-                getCurrentUserId()?.let {
-                    saveUserInfo(userInfo = UserInfo(supabase_user_id = it))
-                }
-            } catch (e: Exception) {
-                // Handle any errors
-                Log.e("Auth", "Error during sign in: ${e.message}")
-            }
-        }
-    }
-     */
-
     fun signIn(context: Context) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
