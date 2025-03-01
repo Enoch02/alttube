@@ -1,86 +1,51 @@
 package com.enoch02.alttube.ui.screen.video_feed
 
+import android.util.Log
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
-import androidx.media3.common.MediaItem
-import androidx.media3.common.PlaybackException
-import androidx.media3.common.Player
-import androidx.media3.exoplayer.ExoPlayer
+import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
+import io.github.jan.supabase.SupabaseClient
+import io.github.jan.supabase.exceptions.HttpRequestException
+import io.github.jan.supabase.storage.storage
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+private const val TAG = "VideoFeed"
+
 @HiltViewModel
-class VideoFeedViewModel @Inject constructor(private val player: ExoPlayer) : ViewModel() {
-    private val _playerState = MutableStateFlow(player)
-    val playerState: StateFlow<ExoPlayer> = _playerState
+class VideoFeedViewModel @Inject constructor(private val supabase: SupabaseClient) : ViewModel() {
+    var feedContentState: FeedContentState by mutableStateOf(FeedContentState.Loading)
 
-    private val _currentVideoIndex = MutableStateFlow(0)
-    val currentVideoIndex: StateFlow<Int> = _currentVideoIndex
+    fun loadPublicVideoURLs(bucketName: String = "videos") {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                feedContentState = FeedContentState.Loading
+                val bucket = supabase.storage.from(bucketName)
+                val files = bucket.list()
 
-    private val _playbackError = MutableStateFlow<String?>(null)
-    val playbackError: StateFlow<String?> = _playbackError
-
-    val videos = listOf(
-        "https://videos.pexels.com/video-files/4678261/4678261-hd_1080_1920_25fps.mp4",
-        "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
-        "https://videos.pexels.com/video-files/4434242/4434242-uhd_1440_2560_24fps.mp4",
-        "https://videos.pexels.com/video-files/2785536/2785536-uhd_1440_2560_25fps.mp4",
-        "https://videos.pexels.com/video-files/4678261/4678261-hd_1080_1920_25fps.mp4",
-        "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
-        "https://videos.pexels.com/video-files/4678261/4678261-hd_1080_1920_25fps.mp4"
-    )
-
-    init {
-        addErrorListener()
-        // Prepare all videos as a playlist
-        preparePlaylist()
-    }
-
-    private fun preparePlaylist() {
-        // Clear any previous media items
-        player.clearMediaItems()
-
-        // Add all videos to the playlist
-        videos.forEach { url ->
-            val mediaItem = MediaItem.fromUri(url)
-            player.addMediaItem(mediaItem)
-        }
-
-        // Prepare the player once with all items
-        player.prepare()
-        player.playWhenReady = true
-    }
-
-    private fun addErrorListener() {
-        player.addListener(object : Player.Listener {
-            override fun onPlayerError(error: PlaybackException) {
-                handleError(error)
+                feedContentState = FeedContentState.Loaded(
+                    files.map { file ->
+                        supabase.storage.from(bucketName).publicUrl(file.name)
+                    }
+                        .shuffled()
+                )
+            } catch (e: HttpRequestException) {
+                Log.e(TAG, "loadPublicVideoURLs: ${e.message}")
+                feedContentState = FeedContentState.Error("Check Your Internet Connection")
+            } catch (e: Exception) {
+                Log.e(TAG, "loadPublicVideoURLs: ${e.message}")
+                feedContentState = FeedContentState.Error(e.message.toString())
             }
-        })
-    }
-
-    fun setCurrentVideo(index: Int) {
-        if (index in videos.indices && index != _currentVideoIndex.value) {
-            // Seek to the selected media item
-            player.seekTo(index, 0)
-            _currentVideoIndex.value = index
         }
     }
+}
 
-    private fun handleError(error: PlaybackException) {
-        val errorMessage = when (error.errorCode) {
-            PlaybackException.ERROR_CODE_IO_NETWORK_CONNECTION_FAILED -> "Network connection error"
-            PlaybackException.ERROR_CODE_IO_FILE_NOT_FOUND -> "File not found"
-            PlaybackException.ERROR_CODE_DECODER_INIT_FAILED -> "Decoder initialization error"
-            else -> "Playback error: ${error.message}"
-        }
-
-        _playbackError.value = errorMessage
-    }
-
-    override fun onCleared() {
-        super.onCleared()
-        player.release()
-    }
+sealed class FeedContentState {
+    data object Loading : FeedContentState()
+    data class Loaded(val videos: List<String>) : FeedContentState()
+    data class Error(val message: String) : FeedContentState()
 }
