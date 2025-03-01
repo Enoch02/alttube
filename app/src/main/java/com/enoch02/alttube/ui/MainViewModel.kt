@@ -198,12 +198,19 @@ class MainViewModel @Inject constructor(private val supabase: SupabaseClient) : 
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 userInfo?.let { userInfo ->
-                    val updatedList = userInfo.uploads?.toMutableList() ?: mutableListOf()
-                    updatedList.remove(url)
+                    val updatedUploadsList = userInfo.uploads?.toMutableList() ?: mutableListOf()
+                    val updatedFavoritesList =
+                        userInfo.favorites?.toMutableList() ?: mutableListOf()
+                    val updatedLikesList = userInfo.liked?.toMutableList() ?: mutableListOf()
+                    updatedUploadsList.remove(url)
+                    updatedFavoritesList.remove(url)
+                    updatedLikesList.remove(url)
 
                     updateUserInfo(
                         userInfo.copy(
-                            uploads = updatedList
+                            uploads = updatedUploadsList,
+                            favorites = updatedFavoritesList,
+                            liked = updatedLikesList
                         )
                     )
                 }

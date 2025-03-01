@@ -31,6 +31,7 @@ class VideoFeedViewModel @Inject constructor(private val supabase: SupabaseClien
                     files.map { file ->
                         supabase.storage.from(bucketName).publicUrl(file.name)
                     }
+                        .shuffled()
                 )
             } catch (e: HttpRequestException) {
                 Log.e(TAG, "loadPublicVideoURLs: ${e.message}")
