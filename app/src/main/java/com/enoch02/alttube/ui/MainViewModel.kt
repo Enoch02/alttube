@@ -3,6 +3,7 @@ package com.enoch02.alttube.ui
 import android.content.Context
 import android.content.SharedPreferences
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -12,8 +13,10 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.postgrest.from
+import io.github.jan.supabase.storage.storage
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
 import javax.inject.Inject
 
@@ -187,6 +190,35 @@ class MainViewModel @Inject constructor(private val supabase: SupabaseClient) : 
                 }
             } else {
                 Log.e(TAG, "No user signed in")
+            }
+        }
+    }
+
+    fun deleteVideo(context: Context, url: String, bucketName: String = "videos") {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                userInfo?.let { userInfo ->
+                    val updatedList = userInfo.uploads?.toMutableList() ?: mutableListOf()
+                    updatedList.remove(url)
+
+                    updateUserInfo(
+                        userInfo.copy(
+                            uploads = updatedList
+                        )
+                    )
+                }
+
+                val fileName = url.split("/").last()
+                val bucket = supabase.storage.from(bucketName)
+
+                bucket.delete(fileName)
+                getUserInfo()
+
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(context, "Upload deleted!", Toast.LENGTH_SHORT).show()
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "deleteVideo: ${e.message}")
             }
         }
     }

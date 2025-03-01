@@ -31,7 +31,7 @@ fun MainScaffold(navController: NavHostController) {
     val destinations =
         mapOf(
             MainDestination.FEED to MainDestinationInfo("Feed", R.drawable.feed),
-            MainDestination.SEARCH to MainDestinationInfo("Search", R.drawable.search),
+            /*MainDestination.SEARCH to MainDestinationInfo("Search", R.drawable.search),*/
             MainDestination.UPLOAD to MainDestinationInfo("Upload", R.drawable.upload),
             MainDestination.FAVORITE to MainDestinationInfo("Favorite", R.drawable.favorite),
             MainDestination.PROFILE to MainDestinationInfo("Profile", R.drawable.profile)
@@ -54,9 +54,9 @@ fun MainScaffold(navController: NavHostController) {
                     )
                 }
 
-                MainDestination.SEARCH -> {
+                /*MainDestination.SEARCH -> {
 
-                }
+                }*/
 
                 MainDestination.UPLOAD -> {
                     UploadScreen(modifier = Modifier.padding(innerPadding))

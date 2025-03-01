@@ -27,8 +27,6 @@ class VideoFeedViewModel @Inject constructor(private val supabase: SupabaseClien
                 val bucket = supabase.storage.from(bucketName)
                 val files = bucket.list()
 
-                Log.e(TAG, "loadPublicVideoURLs: ${files.size}")
-
                 feedContentState = FeedContentState.Loaded(
                     files.map { file ->
                         supabase.storage.from(bucketName).publicUrl(file.name)
